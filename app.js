@@ -27,6 +27,16 @@ app.use(session());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Controlar la caducidad de la sesión
+app.use(function(req, res, next) {
+	var now = new Date().getTime();
+	if (req.session.lastRequest && now-req.session.lastRequest>120000) {
+		delete req.session.user;
+	}
+	req.session.lastRequest = now;
+	next();
+});
+
 // Helpers dinamicos:
 app.use(function(req, res, next) {
 	// guardar path en session.redir para despues de login
